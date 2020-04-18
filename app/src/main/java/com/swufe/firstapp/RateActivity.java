@@ -18,13 +18,18 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class RateActivity extends AppCompatActivity implements Runnable {//多线程，Runnable只有一个Run方法，我们要线程做的事情都要放在Run里面
     EditText rmb;
@@ -34,6 +39,7 @@ public class RateActivity extends AppCompatActivity implements Runnable {//多�
     private float euroRate = 0.2f;
     private float wonRate = 0.3f;
     Handler handler;
+    public  boolean exit;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,9 +64,14 @@ public class RateActivity extends AppCompatActivity implements Runnable {//多�
             @Override
             public void handleMessage(@NonNull Message msg) {
                 if(msg.what==5){//5是判断从哪个线程得到的数据
-                    String str = (String) msg.obj;
-                    Log.i(TAG, "handleMessage: getMessage msg =" +str);
-                    show.setText(str);
+                    Bundle bdl = (Bundle) msg.obj;
+                    dollarRate =bdl.getFloat("dollar-rate");
+                    euroRate =bdl.getFloat("euro-rate");
+                    wonRate =bdl.getFloat("won-rate");
+                    Log.i(TAG, "handleMessage: dollarRate="+dollarRate);
+                    Log.i(TAG, "handleMessage: euroRate="+euroRate);
+                    Log.i(TAG, "handleMessage: wonRate="+wonRate);
+                    Toast.makeText(RateActivity.this,"汇率已更新",Toast.LENGTH_SHORT).show();
                 }
                 super.handleMessage(msg);
             }
@@ -157,40 +168,106 @@ public class RateActivity extends AppCompatActivity implements Runnable {//多�
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
+    private void isTodayFirstLogin() {
+        SharedPreferences preferences = getSharedPreferences("LastLoginTime", MODE_PRIVATE);
+        String lastTime = preferences.getString("update_date", "2020-04-17");
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");// 设置日期格式
+        String todayTime = df.format(new Date());// 获取当前的日期
+        if (lastTime.equals(todayTime)) {
+            Toast.makeText(this, "不是当日首次登陆，已更新数据", Toast.LENGTH_SHORT).show();
+            exit=true;//终止线程,不再更新数据
+        } else {
+            Toast.makeText(this, "当日首次登陆更新数据", Toast.LENGTH_SHORT).show();
+            saveExitTime(todayTime);
+        }
+    }
+    private void saveExitTime(String extiLoginTime) {
 
+        SharedPreferences.Editor editor = getSharedPreferences("LastLoginTime", MODE_PRIVATE).edit();
+        editor.putString("update_date", extiLoginTime);
+
+
+
+        editor.apply();
+    }
     @Override
     public void run() {
         Log.i(TAG, "run: run().....");
-        for(int i =1;i<3;i++){
-            Log.i(TAG, "run: i="+ i);
-            try{
-            Thread.sleep(2000);
-        }catch(InterruptedException e){
-                e.printStackTrace();
-            }//做一个延时操作
-    }
-        //获取Msg对象，用于返回主线程
-        Message msg = handler.obtainMessage(5);//取出来一个消息队列
-       // msg.what = 5;//what用于标记当前数据的类型,跟上列的括号里面的功能一样
-        msg.obj = "Hello from run()";
-        handler.sendMessage(msg);//将msg发送到队列里
-
-        //获取网络数据
-        URL url = null;
         try {
-            url = new URL("http://www.usd-cny.com/icbc.htm");
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }//做一个延时操作
+        //用户用于保存获取的数据
+            Bundle bundle = new Bundle();
+            //获取Msg对象，用于返回主线程
+
+            //获取网络数据
+            URL url = null;
+        /*try {
+            url = new URL("http://www.usd-cny.com/bankofchina.htm");
             HttpURLConnection http = (HttpURLConnection) url.openConnection();
             InputStream in = http.getInputStream();//输入流
-
             String html = inputStreamToString(in);
             Log.i(TAG, "run: html=" + html);
+            Document doc = Jsoup.parse(html);
         } catch (MalformedURLException e){
             e.printStackTrace();
         }
         catch (IOException e) {
             e.printStackTrace();
-        }
+        }*/
+            Document doc = null;
+            try {
+                doc = Jsoup.connect("http://www.usd-cny.com/bankofchina.htm").get();
+                //doc = Jsoup.parse(html);
+                Log.i(TAG, "run: " + doc.title());
+                Elements tables = doc.getElementsByTag("table");
+                /*int i = 1;
+                for(Element table : tables) {
+                    Log.i(TAG, "run: table["+i+"]s=" + table);
+                    i++;
+                }*/
+                Element table1 = tables.get(0);
+                // Log.i(TAG, "run: table1=" +table1);
+                //获取TD中的元素
+                Elements tds = table1.getElementsByTag("td");
+                for (int i = 0; i < tds.size(); i += 6) {
+                    Element td1 = tds.get(i);
+                    Element td2 = tds.get(i + 5);
+                    Log.i(TAG, "run: text=" + td1.text() + "==>" + td2.text());
+                    String str1 = td1.text();
+                    String val = td2.text();
+                    if ("美元".equals(str1)) {
+                        bundle.putFloat("dollar-rate", 100f / Float.parseFloat(val));
+                    } else if ("欧元".equals(str1)) {
+                        bundle.putFloat("euro-rate", 100f / Float.parseFloat(val));
+                    } else if ("韩元".equals(str1)) {
+                        bundle.putFloat("won-rate", 100f / Float.parseFloat(val));
+                    }
 
+                }
+                /*for(Element td :tds){
+                    Log.i(TAG, "run: td="+tds);
+                    Log.i(TAG, "run: text="+td.text());
+                    Log.i(TAG, "run: text="+td.html());//注意两者之间的差别,获取币种、价格
+                }*/
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            //Bundle中保存所获得的对象
+        while (exit=false) {
+            Message msg = handler.obtainMessage(5);//取出来一个消息队列
+            // msg.what = 5;//what用于标记当前数据的类型,跟上列的括号里面的功能一样
+            // msg.obj = "Hello from run()";
+            msg.obj = bundle;
+            handler.sendMessage(msg);//将msg发送到队列里
+
+
+            //2同步加引入包
+
+
+        }
     }
     private String inputStreamToString(InputStream inputStream) throws IOException {//将输入流转为字符串方法
         final int bufferSize = 1024;

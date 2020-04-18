@@ -1,12 +1,12 @@
 package com.swufe.firstapp;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 public class SencondActivity extends AppCompatActivity {
      TextView score;
@@ -19,6 +19,24 @@ public class SencondActivity extends AppCompatActivity {
         score= (TextView) findViewById(R.id.score);
         score2= (TextView) findViewById(R.id.score2);
     }
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        String scorea =score.getText().toString();
+        String scoreb =score.getText().toString();
+
+        outState.putString("teama_score",scorea);
+        outState.putString("teamb_score",scoreb);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {//还原数据
+        super.onRestoreInstanceState(savedInstanceState);
+        String scorea = savedInstanceState.getString("teama_score");
+        String scoreb = savedInstanceState.getString("teamb_score");
+        score.setText(scorea);
+        score2.setText(scoreb);
+    }
+
     public void btnAdd1(View btn){
         if(btn.getId()==R.id.btn_1){
             showScore(1);
