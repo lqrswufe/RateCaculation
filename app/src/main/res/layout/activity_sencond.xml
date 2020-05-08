@@ -35,12 +35,12 @@
                 tools:ignore="HardcodedText" />
 
             <TextView
-                android:text="0"
                 android:id="@+id/score"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="24dp"
                 android:gravity="center"
+                android:text="0"
                 android:textSize="65sp"
                 tools:ignore="HardcodedText" />
 
@@ -51,7 +51,7 @@
                 android:layout_marginBottom="16dp"
                 android:background="@android:color/holo_orange_light"
                 android:onClick="btnAdd3"
-                android:text=""
+                android:text="+3 point"
                 tools:text="+3 point" />
 
             <Button
@@ -71,6 +71,7 @@
                 android:text=""
                 tools:text="+1 point" />
         </LinearLayout>
+
         <TextView
             android:layout_width="2dp"
             android:background="@color/colorPrimary"
