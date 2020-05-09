@@ -14,7 +14,14 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".RateCalActivity"></activity>
+        <activity android:name=".CollegeActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".RateCalActivity" />
         <activity android:name=".MyList2Activity" />
         <activity android:name=".MyListActivity" />
         <activity android:name=".RateListActivity" />
@@ -34,11 +41,7 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".SencondActivity" />
         <activity android:name=".RateActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
     </application>
 

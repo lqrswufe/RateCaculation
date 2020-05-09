@@ -1,11 +1,12 @@
 package com.swufe.firstapp;
 
-import androidx.appcompat.app.AppCompatActivity;
-
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 public class RateCalActivity extends AppCompatActivity {
 float rate = 0f;
@@ -17,8 +18,11 @@ EditText inp2;
         setContentView(R.layout.activity_rate_cal);
         String title = getIntent().getStringExtra("title");
         getIntent().getFloatExtra("rate",0f);
-        Log.i(TAG, "onCreate: title="+title);
-        Log.i(TAG, "onCreate: rate="+rate);
         ((TextView)findViewById(R.id.title2)).setText(title);
+        Uri uri = Uri.parse("http://www.baidu.com");
+        Intent it = new Intent();
+        it.setAction(Intent.ACTION_VIEW);
+        it.setData(uri);
+        startActivity(it);
     }
 }

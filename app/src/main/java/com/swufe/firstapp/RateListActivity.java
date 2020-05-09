@@ -21,8 +21,7 @@ import static android.content.ContentValues.TAG;
 
 public class RateListActivity extends ListActivity implements Runnable{
     Handler handler;
-
-    String data[] = {"one","two","three"};
+    String data[] = {"wait..."};
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -34,9 +33,12 @@ public class RateListActivity extends ListActivity implements Runnable{
         }
         ListAdapter adapter= new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,data);
         setListAdapter(adapter);
+
         Thread thread = new Thread(this);
         thread.start();
+
         handler = new Handler(){
+            @Override
             public void handleMessage(Message msg){
                 if(msg.what==7){
                     List<String> list2 = (List<String>) msg.obj;
@@ -52,29 +54,24 @@ public class RateListActivity extends ListActivity implements Runnable{
         List<String>relist = new ArrayList<String>();
         Document doc = null;
         try {
-            Thread.sleep(30000);
-            doc = Jsoup.connect("http://www.usd-cny.com/bankofchina.htm").get();
+            doc = Jsoup.connect("https://it.swufe.edu.cn/index/tzgg.htm").get();
             //doc = Jsoup.parse(html);
             Log.i(TAG, "run: " + doc.title());
-            Elements tables = doc.getElementsByTag("table");
-            Element table1 = tables.get(0);
-            // Log.i(TAG, "run: table1=" +table1);
+            Elements spans = doc.getElementsByTag("span");
+            Element span1 = spans.get(15);
             //获取TD中的元素
-            Elements tds = table1.getElementsByTag("td");
-            for (int i = 0; i < tds.size(); i += 6) {
-                Element td1 = tds.get(i);
-                Element td2 = tds.get(i + 5);
-                Log.i(TAG, "run: text=" + td1.text() + "==>" + td2.text());
+            for (int i = 0; i < spans.size(); i ++) {
+                Element td1 = spans.get(i);
+                Log.i(TAG, "run: text=" + td1.text() );
                 String str1 = td1.text();
-                String val = td2.text();
-               relist.add(td1.text() + "==>" + td2.text());
+               relist.add(str1);
 
             }
 
-        } catch (IOException | InterruptedException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
-        Message msg = handler.obtainMessage(5);//取出来一个消息队列
+        Message msg = handler.obtainMessage(7);//取出来一个消息队列
         msg.obj = relist;
         handler.sendMessage(msg);//将msg发送到队列里
     }
