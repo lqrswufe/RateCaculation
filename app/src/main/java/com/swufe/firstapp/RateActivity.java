@@ -163,7 +163,7 @@ public class RateActivity extends AppCompatActivity implements Runnable {//多�
             openConfig();
         }else if(item.getItemId()==R.id.open_list){
             //打开列表窗口
-            Intent list = new Intent(this, MyListActivity.class);//打开积分程序窗口
+            Intent list = new Intent(this, MyList2Activity.class);//打开积分程序窗口
 
             startActivity(list);
 
@@ -247,23 +247,18 @@ public class RateActivity extends AppCompatActivity implements Runnable {//多�
         Bundle bundle = new Bundle();
         Document doc = null;
         try {
-            doc = Jsoup.connect("https://www.boc.cn/sourcedb/whpj/").get();
+            doc = Jsoup.connect("https://www.boc.cn/sourcedb/whbj").get();
             //doc = Jsoup.parse(html);
             Log.i(TAG, "run: " + doc.title());
+
             Elements tables = doc.getElementsByTag("table");
-            /*int i = 1;
-            for(Element table : tables) {
-                Log.i(TAG, "run: table["+i+"]s=" + table);
-                i++;
-            }*/
-            Element table1 = tables.get(0);
-            // Log.i(TAG, "run: table1=" +table1);
+            Element table2 = tables.get(1);
+            Elements tds = table2.getElementsByTag("td");
+
             //获取TD中的元素
-            Elements tds = table1.getElementsByTag("td");
-            for (int i = 0; i < tds.size(); i += 6) {
+            for (int i = 0; i < tds.size(); i +=8) {
                 Element td1 = tds.get(i);
-                Element td2 = tds.get(i + 5);
-                Log.i(TAG, "run: text=" + td1.text() + "==>" + td2.text());
+                Element td2 = tds.get(i+5);
                 String str1 = td1.text();
                 String val = td2.text();
                 if ("美元".equals(str1)) {
@@ -289,7 +284,7 @@ public class RateActivity extends AppCompatActivity implements Runnable {//多�
         Bundle bundle = new Bundle();
         Document doc = null;
         try {
-            doc = Jsoup.connect("http://www.usd-cny.com/bankofchina.htm").get();
+            doc = Jsoup.connect("http://www.boc.cn/sourcedb/whpj").get();
             //doc = Jsoup.parse(html);
             Log.i(TAG, "run: " + doc.title());
             Elements tables = doc.getElementsByTag("table");

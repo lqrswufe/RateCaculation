@@ -1,21 +1,44 @@
 package com.swufe.firstapp;
 
 import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-public class MyListActivity extends AppCompatActivity {
+import java.util.ArrayList;
+import java.util.List;
 
+public class MyListActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
+    List<String> data = new ArrayList<String>();
+    private  String TAG = "MyList";
+    ArrayAdapter adapter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my_list);
+        //固定列数GridView listView = findViewById(R.id.mylist);
         ListView listView = findViewById(R.id.mylist);
-        String data[] = {"关于经济信息工程学院2019级专业分流预报名的通知","关于开展2020年西南财经大学国家级（省级）大学生创业训练计划项目、创业实践项目立项申报的通知","关于组织申报2020年度大学生创新训练计划项目的通知"};
-        ListAdapter adapter= new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,data);
+        for(int i=0;i<10;i++){
+            data.add("item"+i);
+        }
+
+
+        adapter= new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,data);
         listView.setAdapter(adapter);
+        listView.setEmptyView(findViewById(R.id.nodata));//列表没数据的时候，显示nodata的内容
+        listView.setOnItemClickListener(this);//删除数据，添加点击事件
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> listv, View view, int position, long id) {
+        Log.i(TAG, "onItemClick: position:"+position);
+        Log.i(TAG, "onItemClick: parent"+listv);
+        adapter.remove(listv.getItemAtPosition(position));
+       // adapter.notifyDataSetChanged();
+
     }
 }

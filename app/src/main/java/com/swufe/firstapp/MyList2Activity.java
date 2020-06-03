@@ -1,6 +1,8 @@
 package com.swufe.firstapp;
 
+import android.app.AlertDialog;
 import android.app.ListActivity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -21,19 +23,19 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import static android.content.ContentValues.TAG;
-
-public class MyList2Activity extends ListActivity implements Runnable, AdapterView.OnItemClickListener{
+public class MyList2Activity extends ListActivity implements Runnable, AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener {
     Handler handler;
-    private ArrayList<HashMap<String, String>> listItems;
-    private SimpleAdapter listItemAdapter;
+    private String TAG = "mylist2";
+    private List<HashMap<String, String>> listItems;//存放图片,文字信息
+    private SimpleAdapter listItemAdapter;//适配器
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         initListView();
-        MyAdapter myAdapter = new MyAdapter(this,R.layout.list_item,listItems);
-        this.setListAdapter(myAdapter);
+      //  MyAdapter myAdapter = new MyAdapter(this,R.layout.list_item,listItems);
+        //this.setListAdapter(myAdapter);
+        this.setListAdapter(listItemAdapter);
 
         Thread thread = new Thread(this);
         thread.start();
@@ -42,8 +44,8 @@ public class MyList2Activity extends ListActivity implements Runnable, AdapterVi
             @Override
             public void handleMessage(Message msg){
                 if(msg.what==7){
-                    List<HashMap<String,String>> list2 = (List<HashMap<String,String>>) msg.obj;
-                    listItemAdapter = new SimpleAdapter(MyList2Activity.this, list2,// listItems数据源
+                    listItems = (List<HashMap<String,String>>) msg.obj;
+                    listItemAdapter = new SimpleAdapter(MyList2Activity.this, listItems,// listItems数据源
                             R.layout.list_item,
                             new String[]{"ItemTitle", "ItemDetail"},
                             new int[]{R.id.itemTitle, R.id.itemDetail}
@@ -54,7 +56,8 @@ public class MyList2Activity extends ListActivity implements Runnable, AdapterVi
                 super.handleMessage(msg);
             }
         };
-        getListView().setOnItemClickListener(this);
+        getListView().setOnItemClickListener(this);//获得控件内容
+        getListView().setOnItemLongClickListener(this);
 
     }
     private void initListView() {
@@ -77,23 +80,32 @@ public class MyList2Activity extends ListActivity implements Runnable, AdapterVi
         Document doc = null;
         List<HashMap<String,String>> relist =new ArrayList<HashMap<String,String>>();
         try {
-            doc = Jsoup.connect("https://it.swufe.edu.cn/index/tzgg.htm").get();
+            doc = Jsoup.connect("http://www.boc.cn/sourcedb/whpj").get();
             //doc = Jsoup.parse(html);
             Log.i(TAG, "run: " + doc.title());
-
-            Elements spans = doc.getElementsByTag("span");
-            Elements hrefes = doc.getElementsByTag("a");
+            Elements tables = doc.getElementsByTag("table");
+            /*int i = 1;
+            for(Element table : tables) {
+                Log.i(TAG, "run: table["+i+"]s=" + table);
+                i++;
+            }*/
+            Element table1 = tables.get(0);
+            // Log.i(TAG, "run: table1=" +table1);
             //获取TD中的元素
-            for (int i = 0; i < spans.size(); i ++) {
-                Element td1 = spans.get(i);
-                Log.i(TAG, "run: text=" + td1.text() );
+            Elements tds = table1.getElementsByTag("td");
+            for (int i = 0; i < tds.size(); i += 6) {
+                Element td1 = tds.get(i);
+                Element td2 = tds.get(i + 5);
+                Log.i(TAG, "run: text=" + td1.text() + "==>" + td2.text());
                 String str1 = td1.text();
-                bundle.putString("keyword",str1);
+                String val = td2.text();
+                Log.i(TAG, "run: "+str1+"==>"+val);
                 HashMap<String,String> map = new HashMap<String,String>();
                 map.put("ItemTitle",str1);
+                map.put("ItemDetail",val);
                 relist.add(map);
                 }
-            for(Element href :hrefes) {
+            /*for(Element href :hrefes) {
                 String webhref = href.attr("href");
                 Log.i(TAG, "getFromInfo: text= "+webhref);
                 bundle.putString("keyword",webhref);
@@ -102,10 +114,7 @@ public class MyList2Activity extends ListActivity implements Runnable, AdapterVi
                 map.put("ItemDetail",webhref);
                 relist.add(map);
             }
-
-
-
-
+*/
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -137,5 +146,27 @@ public class MyList2Activity extends ListActivity implements Runnable, AdapterVi
         rateCal.putExtra("rate",Float.parseFloat(detailStr));
         startActivity(rateCal);
 
+    }
+
+
+    @Override
+    public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
+        Log.i(TAG, "onItemLongClick: 长按列表项position="+position);
+        //删除操作,在ArrayAdaoter里面有remove方法,其他的adapter就是先删除再刷新
+        //listItems.remove(position);
+        //listItemAdapter.notifyDataSetChanged();//数据发生了改变，是来自与list2的
+//构造对话框进行操作AlertFialog
+        AlertDialog.Builder bulider = new AlertDialog.Builder(this);
+        bulider.setTitle("提示").setMessage("请确认是否删除当前数据").setPositiveButton("是", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Log.i(TAG, "onClick: 对话框事件处理");
+                listItems.remove(position);
+                listItemAdapter.notifyDataSetChanged();//数据发生了改变，是来自与list2的
+            }
+        })
+                .setNegativeButton("否",null);
+        bulider.create().show();
+        return true;//短按事件依旧生效
     }
 }

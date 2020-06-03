@@ -1,8 +1,8 @@
 package com.swufe.firstapp;
 
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -17,12 +17,36 @@ EditText inp2;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_rate_cal);
         String title = getIntent().getStringExtra("title");
-        getIntent().getFloatExtra("rate",0f);
+        rate = getIntent().getFloatExtra("rate",0f);
         ((TextView)findViewById(R.id.title2)).setText(title);
-        Uri uri = Uri.parse("http://www.baidu.com");
+        inp2=(EditText)findViewById(R.id.inp2);
+        inp2.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                TextView show = (TextView)RateCalActivity.this.findViewById(R.id.show2);
+                if(s.length()>0){
+                    float val =Float.parseFloat(s.toString());
+                    show.setText(val+"RMB==>"+(100/rate*val));
+                }else{
+                    show.setText("");
+                }
+
+            }
+        });
+        /*Uri uri = Uri.parse("hhttp://www.boc.cn/sourcedb/whpj");
         Intent it = new Intent();
         it.setAction(Intent.ACTION_VIEW);
         it.setData(uri);
-        startActivity(it);
+        startActivity(it);*/
     }
 }

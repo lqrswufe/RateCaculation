@@ -15,15 +15,15 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
         <activity android:name=".CollegeActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
-        <activity android:name=".RateCalActivity" />
-        <activity android:name=".MyList2Activity" />
-        <activity android:name=".MyListActivity" />
+        <activity android:name=".RateCalActivity" android:theme="@style/Base.Theme.AppCompat.Light.Dialog" ></activity>
+        <activity android:name=".MyList2Activity" >
+
+        </activity>
+        <activity android:name=".MyListActivity" >
+
+        </activity>
         <activity android:name=".RateListActivity" />
 
         <meta-data
@@ -41,7 +41,11 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".SencondActivity" />
         <activity android:name=".RateActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
 
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
     </application>
 
