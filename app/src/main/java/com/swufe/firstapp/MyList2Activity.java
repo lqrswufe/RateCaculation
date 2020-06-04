@@ -89,11 +89,11 @@ public class MyList2Activity extends ListActivity implements Runnable, AdapterVi
                 Log.i(TAG, "run: table["+i+"]s=" + table);
                 i++;
             }*/
-            Element table1 = tables.get(0);
+            Element table1 = tables.get(1);
             // Log.i(TAG, "run: table1=" +table1);
             //获取TD中的元素
             Elements tds = table1.getElementsByTag("td");
-            for (int i = 0; i < tds.size(); i += 6) {
+            for (int i = 0; i < tds.size(); i += 8) {
                 Element td1 = tds.get(i);
                 Element td2 = tds.get(i + 5);
                 Log.i(TAG, "run: text=" + td1.text() + "==>" + td2.text());
